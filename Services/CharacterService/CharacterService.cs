@@ -22,18 +22,31 @@ namespace dotnet_rpg.Services.CharacterService
             _mapper = mapper;
         }
 
+        public async Task<ServiceResponse<List<GetCharacterDto>>> DeleteCharacter(int id)
+        {
+            ServiceResponse<List<GetCharacterDto>> response = new ServiceResponse<List<GetCharacterDto>>();
+            try
+            {
+                Character character = characters.First(c => c.Id == id);
+                characters.Remove(character);
+                response.Data = characters.Select(c => _mapper.Map<GetCharacterDto>(c)).ToList();
+            } catch (Exception ex) 
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+            }
+            
+            
+            return response;
+        }
+
         async public Task<ServiceResponse<GetCharacterDto>> UpdateCharacter(UpdateCharacterDto updatedCharacter)
         {
             ServiceResponse<GetCharacterDto> response = new ServiceResponse<GetCharacterDto>();
             try
             {
                 Character character = characters.FirstOrDefault(c => c.Id == updatedCharacter.Id);
-                character.Name = updatedCharacter.Name;
-                character.HitPoints = updatedCharacter.HitPoints;
-                character.Strength = updatedCharacter.Strength;
-                character.Defense = updatedCharacter.Defense;
-                character.Intelligence = updatedCharacter.Intelligence;
-                character.Class = updatedCharacter.Class;
+                _mapper.Map(updatedCharacter, character);
                 response.Data = _mapper.Map<GetCharacterDto>(character);
             } catch (Exception ex) 
             {
